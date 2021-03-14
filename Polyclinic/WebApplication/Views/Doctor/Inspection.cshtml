@@ -1,0 +1,30 @@
+﻿@{
+    ViewData["Title"] = "Eckeub";
+}
+    <div class="text-center text-info">
+        <h1>Обследования</h1>
+    </div>
+
+    <hr />
+    <p> <strong> <a class="btn btn-success" asp-area="" asp-controller="Doctor" asp-action="AddInspection">Добавить обследование</a></strong></p>
+    <hr />
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<table class="table">
+    <tr>
+        <td>Название</td>
+        <td>Цена</td>
+    </tr>
+    @foreach (var doctor in ViewBag.In)
+    {
+<tr>
+    <td>@doctor.Name</td>
+
+    <td>@ViewBag.Cena[doctor.Id]</td>
+    @if (ViewBag.Cena[doctor.Id]!=0) {
+    <td>
+        <a class="btn btn-primary btn-sm" asp-controller="Doctor" asp-action="InspectionCost" asp-route-id="@doctor.Id">Затраты</a>
+    </td>}
+</tr>
+
+    }
+</table>

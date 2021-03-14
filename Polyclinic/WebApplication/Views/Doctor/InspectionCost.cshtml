@@ -1,0 +1,32 @@
+﻿@{
+    ViewData["Title"] = "Eckeub";
+}
+<div class="text-center text-info">
+    <h1>Затраты по обследованию @ViewBag.Name</h1>
+</div>
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<table class="table">
+    <tr>
+        <td>Название</td>
+        <td>Цена</td>
+    </tr>
+    @foreach (var ins in ViewBag.In)
+    {
+        @foreach (var cost in ViewBag.Cost)
+        {
+            @if (cost.Id == ins.CostId)
+            {
+                @if ((ins.Cena != 0))
+                {
+            <tr>
+                
+                <td>@cost.Name</td>
+
+                <td>@ins.Cena</td>
+            </tr>
+                    }
+                }
+            }
+        }
+</table>
