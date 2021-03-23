@@ -4,12 +4,12 @@
 <div class="text-center text-info">
     <h1>Затраты</h1>
 </div>
-    @using (Html.BeginForm("AddCost", "Doctor", FormMethod.Post))
-    {
-        <input type="text" name="_name" value="" />
-        <br />
-        <button name="action" value="add">Добавить</button>
-    }
+@using (Html.BeginForm("AddCost", "Doctor", FormMethod.Post))
+{
+    <input type="text" name="_name" value="" />
+    <br />
+    <button name="action" value="add">Добавить</button>
+}
 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 <table class="table">
     <tr>

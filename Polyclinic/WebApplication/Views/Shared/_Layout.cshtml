@@ -39,6 +39,12 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Logout">Выход</a>
                             </li>
                         }
+                        @if (Program.User != null && Program.User.Status == BusinessLogic.Enum.StatusUser.Клиент)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Logout">Выход</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>

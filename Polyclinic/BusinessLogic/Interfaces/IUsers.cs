@@ -10,6 +10,5 @@ namespace BusinessLogic.Interfaces
     {
         List<UsersViewModels> Read(UsersBindingModel model);
         void CreateOrUpdate(UsersBindingModel model);
-        void Delete(UsersBindingModel model);
     }
 }

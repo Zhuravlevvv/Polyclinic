@@ -1,9 +1,16 @@
 ﻿@model WebApplication.Models.InspectionModel
-
-@{
-    ViewData["Title"] = "Добавить обследование";
+@if (ViewBag.Id == 0)
+{
+    {
+        ViewData["Title"] = "Добавить обследование";
+    }
 }
-
+@if (ViewBag.Id != 0)
+{
+    {
+        ViewData["Title"] = $"Добавить затраты к обследованию {ViewBag.Name}";
+    }
+}
 <div class="text-center text-info">
     <h1>@ViewData["Title"]</h1>
 </div>
@@ -11,8 +18,9 @@
 
 @using (Html.BeginForm())
 {
+    <input type="hidden" name="id" value=@ViewBag.Id>
     <br>
-    <td><input type="text" name="Model.Name"  /></td>
+    <td><input type="text" name="Model.Name" value=@Convert.ToString(ViewBag.Name)></td>
     <br>
     @Html.ValidationSummary(true, "", new { @style = "color: red" })
     <p>Состав:</p>
@@ -21,13 +29,16 @@
             <td>Name</td>
             <td>Cena</td>
         </tr>
-        @foreach (BusinessLogic.ViewModels.CostViewModels doctor in ViewBag.Cost)
+
+
+        @foreach (var cost in ViewBag.Cost)
         {
             <tr>
-                <td>@doctor.Name</td>
-                <td><input type="number" name="Model.Cena[@doctor.Id]" value="0" min="0" /></td>
+                <td>@cost.Name</td>
+                <td><input type="number" name="Model.Cena[@cost.Id]" value="0" min="0" /></td>
             </tr>
         }
+
     </table>
 
     <button type="submit" class="btn btn-info btn-sm">Создать</button>

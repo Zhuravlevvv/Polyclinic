@@ -38,23 +38,7 @@ namespace Database.Implements
             }
         }
 
-        public void Delete(UsersBindingModel model)
-        {
-            using (var context = new Database())
-            {
-                User element = context.Users.FirstOrDefault(rec => rec.Id == model.Id);
 
-                if (element != null)
-                {
-                    context.Users.Remove(element);
-                    context.SaveChanges();
-                }
-                else
-                {
-                    throw new Exception("Элемент не найден");
-                }
-            }
-        }
 
         public List<UsersViewModels> Read(UsersBindingModel model)
         {
@@ -63,9 +47,9 @@ namespace Database.Implements
                 return context.Users
                  .Where(rec => model == null
                    || rec.Id == model.Id
-                   ||( rec.FIO == model.FIO && (rec.Password == model.Password || model.Password == null) && rec.Status == model.Status)
-                   
-                   || rec.Email==model.Email)
+                   || (rec.FIO == model.FIO && (rec.Password == model.Password || model.Password == null) && rec.Status == model.Status)
+
+                   || rec.Email == model.Email)
                .Select(rec => new UsersViewModels
                {
                    Id = rec.Id,
@@ -74,12 +58,11 @@ namespace Database.Implements
                    Email = rec.Email,
                    Password = rec.Password,
                    PhoneNumber = rec.PhoneNumber
-               
+
 
                })
                 .ToList();
             }
         }
-   
     }
 }

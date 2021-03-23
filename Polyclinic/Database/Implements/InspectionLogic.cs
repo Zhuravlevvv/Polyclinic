@@ -10,7 +10,7 @@ using System.Text;
 namespace Database.Implements
 {
     public class InspectionLogic : IInspections
-    {
+    {       
         public void CreateOrUpdate(InspectionsBindingModel model)
         {
             using (var context = new Database())
@@ -32,7 +32,8 @@ namespace Database.Implements
                 element.Name = model.Name;
                 element.UserId = model.UserId;
                 context.SaveChanges();
-            }
+            }//Добавить возможность изменения названия?
+            
         }
 
         public void CreateOrUpdate(CostInspectionsBindingModel model)
@@ -40,12 +41,13 @@ namespace Database.Implements
             using (var context = new Database())
             {
                 CostInspection element = model.Id.HasValue ? null : new CostInspection();
-                if (model.Id.HasValue)
+                if (model.CostId != 0 && model.InspectionId != 0)
                 {
-                    element = context.CostInspections.FirstOrDefault(rec => rec.Id == model.Id);
+                    element = context.CostInspections.FirstOrDefault(rec => rec.InspectionId == model.InspectionId && rec.CostId == model.CostId);
                     if (element == null)
                     {
-                        throw new Exception("Элемент не найден");
+                        element = new CostInspection();
+                        context.CostInspections.Add(element);
                     }
                 }
                 else
@@ -61,47 +63,43 @@ namespace Database.Implements
             }
         }
 
-        public void Delete(InspectionsBindingModel model)
-        {
-            throw new NotImplementedException();
-        }
 
         public List<InspectionsViewModels> Read(InspectionsBindingModel model)
         {
             using (var context = new Database())
             {
                 return context.Inspections
-                 .Where(rec => model == null
-                   || rec.Id == model.Id
-                   || ((rec.Name== model.Name||model.Name==null)&&rec.UserId==model.UserId))
-               .Select(rec => new InspectionsViewModels
-               {
-                   Id = rec.Id,
-                   Name = rec.Name
-               })
+                    .Where(rec => model == null
+                    || rec.Id == model.Id
+                    || ((rec.Name == model.Name || model.Name == null) && rec.UserId == model.UserId))
+                .Select(rec => new InspectionsViewModels
+                {
+                    Id = rec.Id,
+                    Name = rec.Name,
+                    UserId = rec.UserId
+                })
                 .ToList();
             }
         }
 
-        public List<CostInspectionsViewModels> Read(CostInspectionsBindingModel model)
+        public List<CostInspectionsViewModels> ReadCI(CostInspectionsBindingModel model)
         {
             using (var context = new Database())
             {
                 return context.CostInspections
-                 .Where(rec => model == null
-                   || rec.Id == model.Id
-                   || rec.InspectionId == model.InspectionId)
-               .Select(rec => new CostInspectionsViewModels
-               {
-                   Id = rec.Id,
-                   Cena = rec.Cena,
-                   InspectionId=rec.InspectionId,
-                   CostId=rec.CostId
-               })
+                    .Where(rec => model == null
+                    || rec.Id == model.Id
+                    || rec.InspectionId == model.InspectionId)
+                .Select(rec => new CostInspectionsViewModels
+                {
+                    Id = rec.Id,
+                    Cena = rec.Cena,
+                    InspectionId = rec.InspectionId,
+                    CostId = rec.CostId
+                })
                 .ToList();
             }
         }
-
-
-    }
+        
+    }       
 }

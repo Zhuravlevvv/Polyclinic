@@ -19,12 +19,12 @@ namespace WebApplication.Controllers
         public UserController(IUsers user)
         {
             this.user = user;
-        
+
         }
 
         public IActionResult Login()
         {
-        
+
             return View();
         }
         [HttpPost]
@@ -47,7 +47,7 @@ namespace WebApplication.Controllers
             }
             if (clientView == null)
             {
-            
+
                 ModelState.AddModelError("", "Вы ввели неверный пароль, либо пользователь не найден");
                 return View(client);
             }
@@ -82,7 +82,7 @@ namespace WebApplication.Controllers
             var existClient = user.Read(new UsersBindingModel
             {
                 FIO = client.FIO,
-                Status=status
+                Status = status
             }).FirstOrDefault();
             if (existClient != null)
             {
@@ -114,7 +114,7 @@ namespace WebApplication.Controllers
                 ModelState.AddModelError("", $"Длина пароля должна быть от {10} до {6} символов");
                 return View(client);
             }
-          
+
             if (String.IsNullOrEmpty(client.Password))
             {
                 ModelState.AddModelError("", "Введите пароль");
@@ -138,5 +138,4 @@ namespace WebApplication.Controllers
             return View("Registration", client);
         }
     }
-
 }

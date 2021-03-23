@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Database.Models
 {
- public   class Payment
+    public   class Payment
     {
         public int? Id { get; set; }
         [Required]

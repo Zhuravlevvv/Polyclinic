@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Database.Models
 {
-  public  class Inspection
+    public  class Inspection
     {
         public int? Id { get; set; }
         [Required]

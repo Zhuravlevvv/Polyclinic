@@ -41,7 +41,7 @@ namespace Database.Implements
                 return context.Costs
                  .Where(rec => model == null
                    || rec.Id == model.Id
-                   || rec.Name==model.Name)
+                   || rec.Name == model.Name)
                .Select(rec => new CostViewModels
                {
                    Id = rec.Id,
