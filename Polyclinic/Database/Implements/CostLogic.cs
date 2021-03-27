@@ -34,6 +34,24 @@ namespace Database.Implements
             }
         }
 
+        public void Delete(CostBindingModel model)
+        {
+            using (var context = new Database())
+            {
+                Cost element = context.Costs.FirstOrDefault(rec => rec.Id == model.Id);
+
+                if (element != null)
+                {
+                    context.Costs.Remove(element);
+                    context.SaveChanges();
+                }
+                else
+                {
+                    throw new Exception("Элемент не найден");
+                }
+            }
+        }
+
         public List<CostViewModels> Read(CostBindingModel model)
         {
             using (var context = new Database())

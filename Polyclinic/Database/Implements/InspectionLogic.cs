@@ -10,7 +10,7 @@ using System.Text;
 namespace Database.Implements
 {
     public class InspectionLogic : IInspections
-    {       
+    {
         public void CreateOrUpdate(InspectionsBindingModel model)
         {
             using (var context = new Database())
@@ -32,8 +32,7 @@ namespace Database.Implements
                 element.Name = model.Name;
                 element.UserId = model.UserId;
                 context.SaveChanges();
-            }//Добавить возможность изменения названия?
-            
+            }
         }
 
         public void CreateOrUpdate(CostInspectionsBindingModel model)
@@ -63,21 +62,56 @@ namespace Database.Implements
             }
         }
 
+        public void Delete(InspectionsBindingModel model)
+        {
+            using (var context = new Database())
+            {
+                Inspection element = context.Inspections.FirstOrDefault(rec => rec.Id == model.Id);
+
+                if (element != null)
+                {
+                    context.Inspections.Remove(element);
+                    context.SaveChanges();
+                }
+                else
+                {
+                    throw new Exception("Элемент не найден");
+                }
+            }
+        }
+
+        public void DeleteCost(CostInspectionsBindingModel model)
+        {
+            using (var context = new Database())
+            {
+                CostInspection element = context.CostInspections.FirstOrDefault(rec => rec.Id == model.Id);
+
+                if (element != null)
+                {
+                    context.CostInspections.Remove(element);
+                    context.SaveChanges();
+                }
+                else
+                {
+                    throw new Exception("Элемент не найден");
+                }
+            }
+        }
 
         public List<InspectionsViewModels> Read(InspectionsBindingModel model)
         {
             using (var context = new Database())
             {
                 return context.Inspections
-                    .Where(rec => model == null
-                    || rec.Id == model.Id
-                    || ((rec.Name == model.Name || model.Name == null) && rec.UserId == model.UserId))
-                .Select(rec => new InspectionsViewModels
-                {
-                    Id = rec.Id,
-                    Name = rec.Name,
-                    UserId = rec.UserId
-                })
+                 .Where(rec => model == null
+                   || rec.Id == model.Id
+                   || ((rec.Name == model.Name || model.Name == null) && rec.UserId == model.UserId))
+               .Select(rec => new InspectionsViewModels
+               {
+                   Id = rec.Id,
+                   Name = rec.Name,
+                   UserId = rec.UserId
+               })
                 .ToList();
             }
         }
@@ -87,19 +121,19 @@ namespace Database.Implements
             using (var context = new Database())
             {
                 return context.CostInspections
-                    .Where(rec => model == null
-                    || rec.Id == model.Id
-                    || rec.InspectionId == model.InspectionId)
-                .Select(rec => new CostInspectionsViewModels
-                {
-                    Id = rec.Id,
-                    Cena = rec.Cena,
-                    InspectionId = rec.InspectionId,
-                    CostId = rec.CostId
-                })
+                 .Where(rec => model == null
+                   || rec.Id == model.Id
+                   || rec.InspectionId == model.InspectionId)
+               .Select(rec => new CostInspectionsViewModels
+               {
+                   Id = rec.Id,
+                   Cena = rec.Cena,
+                   InspectionId = rec.InspectionId,
+                   CostId = rec.CostId
+               })
                 .ToList();
             }
         }
-        
-    }       
-}
+    }
+}       
+

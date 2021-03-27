@@ -12,5 +12,7 @@ namespace BusinessLogic.Interfaces
         List<CostInspectionsViewModels> ReadCI(CostInspectionsBindingModel model);
         void CreateOrUpdate(InspectionsBindingModel model);
         void CreateOrUpdate(CostInspectionsBindingModel model);
+        void Delete(InspectionsBindingModel model);
+        void DeleteCost(CostInspectionsBindingModel model);
     }
 }

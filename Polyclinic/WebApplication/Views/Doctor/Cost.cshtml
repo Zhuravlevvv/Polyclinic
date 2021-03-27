@@ -15,10 +15,16 @@
     <tr>
         <td>Название</td>
     </tr>
-    @foreach (var doctor in ViewBag.Cost)
+    @foreach (var cost in ViewBag.Cost)
     {
         <tr>
-            <td>@doctor.Name</td>
+            <td>@cost.Name</td>
+            <td>
+                <a class="btn btn-primary btn-sm btn-block" asp-action="DeleteCost" asp-route-id="@cost.Id">Удалениe</a>
+            </td>
+            <td>
+                <a class="btn btn-primary btn-sm btn-block" asp-action="UpdateCost" asp-route-id="@cost.Id">Изменениеe</a>
+            </td>
         </tr>
 
     }

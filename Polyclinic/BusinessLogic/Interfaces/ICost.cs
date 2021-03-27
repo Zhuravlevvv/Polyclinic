@@ -10,5 +10,6 @@ namespace BusinessLogic.Interfaces
     {
         List<CostViewModels> Read(CostBindingModel model);
         void CreateOrUpdate(CostBindingModel model);
+        void Delete(CostBindingModel model);
     }
 }

@@ -12,19 +12,22 @@
         <td>Название</td>
         <td>Цена</td>
     </tr>
-   @foreach (var ins in ViewBag.In)
+    @foreach (var ins in ViewBag.In)
     {
-       @foreach (var cost in ViewBag.Cost)
+        @foreach (var cost in ViewBag.Cost)
         {
-           @if (cost.Id == ins.CostId)
+            @if (cost.Id == ins.CostId)
             {
-               @if ((ins.Cena != 0))
+                @if ((ins.Cena != 0))
                 {
                     <tr>
 
                         <td>@cost.Name</td>
 
                         <td>@ins.Cena</td>
+                        <td>
+                            <a class="btn btn-primary btn-sm btn-block" asp-action="DeleteIC" asp-route-id="@cost.Id">Удалениe</a>
+                        </td>
                     </tr>
                 }
             }

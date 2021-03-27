@@ -1,0 +1,22 @@
+﻿@model WebApplication.Models.InspectionModel
+
+@{
+    ViewData["Title"] = "Изменить затраты";
+}
+
+<h1>Изменения затраты</h1>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="UpdateCost">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <input type="text" name="Model.Name" value=@Convert.ToString(ViewBag.Name)>
+            </div>
+            @Html.ValidationSummary(true, "", new { @style = "color: red" })
+            <div class="form-group">
+                <input type="submit" value="Редактировать" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>

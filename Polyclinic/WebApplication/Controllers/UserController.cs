@@ -24,7 +24,6 @@ namespace WebApplication.Controllers
 
         public IActionResult Login()
         {
-
             return View();
         }
         [HttpPost]
@@ -55,8 +54,6 @@ namespace WebApplication.Controllers
 
             return RedirectToAction("Index", "Home");
         }
-
-
 
         public IActionResult Registration()
         {

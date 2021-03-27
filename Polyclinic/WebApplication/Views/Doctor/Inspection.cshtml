@@ -35,6 +35,10 @@
                     <a class="btn btn-primary btn-sm" asp-controller="Doctor" asp-action="AddInspection" asp-route-id="@doctor.Id">Добавить затраты</a>
                 </td>
             }
+            <td>
+                <a class="btn btn-primary btn-sm btn-block" asp-action="Delete" asp-route-id="@doctor.Id">Удалениe</a>
+            </td>
+
         </tr>
 
     }

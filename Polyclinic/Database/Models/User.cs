@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Database.Models
 {
- public   class User
+    public class User
     {
         public int? Id { get; set; }
         [Required]
