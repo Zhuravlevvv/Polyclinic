@@ -183,7 +183,7 @@ namespace WebApplication.Controllers
 
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     ModelState.AddModelError("", "Цена это положительное десятичное число");
 

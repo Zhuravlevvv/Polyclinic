@@ -1,14 +1,17 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Главная";
 }
-
 <div class="text-center">
    @if (Program.User != null)
     {
-
-        @Program.User.Status @Program.User.FIO
+        <hr />
+        @Program.User.Status
+        <br />
+        @Program.User.FIO
+        <hr />
     }
 </div>
+
 
 
 

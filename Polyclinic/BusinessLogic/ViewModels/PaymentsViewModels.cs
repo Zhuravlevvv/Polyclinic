@@ -4,6 +4,7 @@ using System.Text;
 
 namespace BusinessLogic.ViewModels
 {
+    //оплата
     public class PaymentsViewModels
     {
         public int? Id { get; set; }

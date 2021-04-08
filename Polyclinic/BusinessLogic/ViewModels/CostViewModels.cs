@@ -4,6 +4,7 @@ using System.Text;
 
 namespace BusinessLogic.ViewModels
 {
+    //стоимость
     public class CostViewModels
     {
         public int? Id { get; set; }

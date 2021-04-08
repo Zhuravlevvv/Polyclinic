@@ -11,27 +11,27 @@
         <form asp-action="Registration">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Email" class="control-label">Почта</label>
+                <label asp-for="Email" class="control-label">Почта:</label>
                 <input asp-for="Email" class="form-control" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Password" class="control-label">Пароль</label>
+                <label asp-for="Password" class="control-label">Пароль:</label>
                 <input asp-for="Password" class="form-control" />
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="FIO" class="control-label">ФИО</label>
+                <label asp-for="FIO" class="control-label">ФИО:</label>
                 <input asp-for="FIO" class="form-control" />
                 <span asp-validation-for="FIO" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="PhoneNumber" class="control-label">Телефон</label>
+                <label asp-for="PhoneNumber" class="control-label">Телефон:</label>
                 <input asp-for="PhoneNumber" class="form-control" />
                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label class="control-label">Status<br /></label>
+                <label class="control-label">Статус:<br /></label>
                 <select id="Status" name="Status">
                     <option>Сотрудник</option>
                     <option>Клиент</option>

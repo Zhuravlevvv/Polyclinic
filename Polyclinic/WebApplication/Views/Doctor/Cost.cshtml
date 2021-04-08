@@ -6,14 +6,14 @@
 </div>
 @using (Html.BeginForm("AddCost", "Doctor", FormMethod.Post))
 {
+    <p>Введите название затраты:</p>
     <input type="text" name="_name" value="" />
-    <br />
-    <button name="action" value="add">Добавить</button>
+    <button name="action" class="btn btn-info btn-sm" value="add">Добавить</button>
 }
 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 <table class="table">
     <tr>
-        <td>Название</td>
+        <td>Название:</td>
     </tr>
     @foreach (var cost in ViewBag.Cost)
     {
@@ -23,7 +23,7 @@
                 <a class="btn btn-primary btn-sm btn-block" asp-action="DeleteCost" asp-route-id="@cost.Id">Удалениe</a>
             </td>
             <td>
-                <a class="btn btn-primary btn-sm btn-block" asp-action="UpdateCost" asp-route-id="@cost.Id">Изменениеe</a>
+                <a class="btn btn-primary btn-sm btn-block" asp-action="UpdateCost" asp-route-id="@cost.Id">Изменить</a>
             </td>
         </tr>
 

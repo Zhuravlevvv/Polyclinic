@@ -105,10 +105,10 @@ namespace WebApplication.Controllers
                 ModelState.AddModelError("", "Email введен некорректно");
                 return View(client);
             }
-            if (client.Password.Length > 10 ||
-            client.Password.Length < 6)
+            if (client.Password.Length > 6 ||
+            client.Password.Length < 10)
             {
-                ModelState.AddModelError("", $"Длина пароля должна быть от {10} до {6} символов");
+                ModelState.AddModelError("", $"Длина пароля должна быть от {6} до {10} символов");
                 return View(client);
             }
 

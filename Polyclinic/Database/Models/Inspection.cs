@@ -13,14 +13,11 @@ namespace Database.Models
         public int UserId { get; set; }
         [Required]
         public string Name { get; set; }
-
-  
         public User User { get; set; }
         [ForeignKey("InspectionId")]
         public virtual List<CostInspection> CostInspection { get; set; }
 
         [ForeignKey("InspectionId")]
         public virtual List<InspectionDoctor> InspectionDoctor { get; set; }
-
     }
 }

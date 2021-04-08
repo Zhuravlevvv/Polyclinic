@@ -5,6 +5,7 @@ using System.Text;
 
 namespace BusinessLogic.ViewModels
 {
+    //талон на посещение
     public class VisitViewModels
     {
         public int? Id { get; set; }

@@ -20,16 +20,15 @@
 {
     <input type="hidden" name="id" value=@ViewBag.Id>
     <br>
+    <p>Введите название обседования:</p>
     <td><input type="text" name="Model.Name" value=@Convert.ToString(ViewBag.Name)></td>
-    <br>
     @Html.ValidationSummary(true, "", new { @style = "color: red" })
     <p>Состав:</p>
     <table class="table">
         <tr>
-            <td>Name</td>
-            <td>Cena</td>
+            <td>Название</td>
+            <td>Цена</td>
         </tr>
-
 
         @foreach (var cost in ViewBag.Cost)
         {

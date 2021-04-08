@@ -5,6 +5,7 @@ using System.Text;
 
 namespace BusinessLogic.ViewModels
 {
+    //пользователь
     public class UsersViewModels
     {
         public int? Id { get; set; }
