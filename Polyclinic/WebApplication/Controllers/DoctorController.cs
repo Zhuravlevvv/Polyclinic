@@ -1,12 +1,15 @@
 ﻿using BusinessLogic.BindingModel;
 using BusinessLogic.HelperModels;
 using BusinessLogic.Interfaces;
+using BusinessLogic.ViewModels;
 using Database.Implements;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using WebApplication.Models;
 
@@ -28,26 +31,24 @@ namespace WebApplication.Controllers
             {
                 ModelState.AddModelError("", TempData["ErrorLack"].ToString());
             }
-            ViewBag.Cost = cost.Read(null);
+            ViewBag.Cost = cost.GetFullList();
 
             return View();
         }
 
         public IActionResult Inspection()
         {
-            var inspection = inspections.Read(new InspectionsBindingModel { UserId = (int)Program.User.Id });
+            var inspection = inspections.GetFilteredList(new InspectionsBindingModel { UserId = (int)Program.User.Id });
             Dictionary<int, decimal> cena = new Dictionary<int, decimal>();
             foreach (var i in inspection)
             {
                 cena.Add((int)i.Id,
-                    inspections.ReadCI(new CostInspectionsBindingModel { InspectionId = (int)i.Id }).ToList().Sum(x => x.Cena));
+                    i.costInspections.Sum(x => x.Value));
             }
             ViewBag.Cena = cena;
             ViewBag.In = inspection;
             return View();
         }
-
-
 
         public ActionResult AddCost(string _name)
         {
@@ -56,15 +57,14 @@ namespace WebApplication.Controllers
                 TempData["ErrorLack"] = "Вы не ввели название";
                 return RedirectToAction("Cost");
             }
-            var diagnosis = cost.Read(new CostBindingModel { Name = _name });
-            if (diagnosis.Count > 0)
+            var diagnosis = cost.GetElement(new CostBindingModel { Name = _name });
+            if (diagnosis != null)
             {
                 TempData["ErrorLack"] = "Такая затрата уже есть в базе данных";
                 return RedirectToAction("Cost");
             }
-            cost.CreateOrUpdate(new CostBindingModel
+            cost.Insert(new CostBindingModel
             {
-
                 Name = _name
             });
             return RedirectToAction("Cost");
@@ -73,10 +73,10 @@ namespace WebApplication.Controllers
         public IActionResult AddInspection(int id)
         {
             ViewBag.Id = id;
-            var Name = inspections.Read(new InspectionsBindingModel { Id = id });
-            if (Name.Count != 0)
+            var Name = inspections.GetElement(new InspectionsBindingModel { Id = id });
+            if (Name != null)
             {
-                ViewBag.Name = Name[0].Name;
+                ViewBag.Name = Name.Name;
             }
             else
             {
@@ -86,8 +86,7 @@ namespace WebApplication.Controllers
             {
                 ModelState.AddModelError("", TempData["ErrorLack"].ToString());
             }
-            ViewBag.CI = inspections.ReadCI(new CostInspectionsBindingModel { InspectionId = id });
-            ViewBag.Cost = cost.Read(null).OrderBy(u => u.Name);
+            ViewBag.Cost = cost.GetFullList();
             return View();
         }
 
@@ -96,33 +95,27 @@ namespace WebApplication.Controllers
             cost.Delete(new CostBindingModel { Id = id });
             return RedirectToAction("Cost");
         }
-        public ActionResult DeleteIC(int id)
+        public ActionResult DeleteIC(int id, int id1)
         {
-            var Id = inspections.ReadCI(new CostInspectionsBindingModel { Id = id });
-            var ins = inspections.Read(new InspectionsBindingModel { Id = Id[0].InspectionId });
-            inspections.DeleteCost(new CostInspectionsBindingModel { Id = id });
-            if (inspections.ReadCI(new CostInspectionsBindingModel { Id = id }).Count > 0)
+            var Id = inspections.GetElement(new CostInspectionsBindingModel { InspectionId = id1, CostId = id });//считываем элемент затраты по обследованию
+            inspections.DeleteCost(new CostInspectionsBindingModel { Id = Id.Id });
+            if (inspections.GetElement(new InspectionsBindingModel { Id = id1 }).costInspections.Count != 0)//проверяем остались ли у обследования еще затраты
             {
-                ViewBag.Id = id;
-                ViewBag.Name = inspections.Read(new InspectionsBindingModel { Id = id })[0].Name;
-                ViewBag.Cost = cost.Read(null);
-                ViewBag.In = inspections.ReadCI(new CostInspectionsBindingModel { InspectionId = id });
-                return RedirectToAction("InspectionCost");
+                return RedirectToAction("InspectionCost", new { id = id1 });
             }
             else
             {
-                var inspection = inspections.Read(new InspectionsBindingModel { UserId = (int)Program.User.Id });
+                var inspection = inspections.GetFilteredList(new InspectionsBindingModel { UserId = (int)Program.User.Id });
                 Dictionary<int, decimal> cena = new Dictionary<int, decimal>();
                 foreach (var i in inspection)
                 {
                     cena.Add((int)i.Id,
-                        inspections.ReadCI(new CostInspectionsBindingModel { InspectionId = (int)i.Id }).ToList().Sum(x => x.Cena));
+                        i.costInspections.Sum(x => x.Value));
                 }
                 ViewBag.Cena = cena;
                 ViewBag.In = inspection;
                 return RedirectToAction("Inspection");
             }
-
         }
         public ActionResult Delete(int id)
         {
@@ -132,8 +125,8 @@ namespace WebApplication.Controllers
         public IActionResult UpdateCost(int id)
         {
             ViewBag.Id = id;
-            var Name = cost.Read(new CostBindingModel { Id = id });
-            ViewBag.Name = Name[0].Name;
+            var Name = cost.GetElement(new CostBindingModel { Id = id });
+            ViewBag.Name = Name.Name;
             if (TempData["ErrorLack"] != null)
             {
                 ModelState.AddModelError("", TempData["ErrorLack"].ToString());
@@ -149,26 +142,26 @@ namespace WebApplication.Controllers
                 ViewBag.Id = id;
                 return View("UpdateCost", model);
             }
-            var Cost = cost.Read(new CostBindingModel { Name = model.Name });
-            if (Cost.Count != 0 && Cost[0].Id != id)
+            var Cost = cost.GetElement(new CostBindingModel { Name = model.Name });
+            if (Cost != null && Cost.Id != id)
             {
                 ModelState.AddModelError("", "У вас уже есть Затратa с таким название");
                 ViewBag.Id = id;
                 return View("UpdateCost", model);
             }
-            cost.CreateOrUpdate(new CostBindingModel
+            cost.Update(new CostBindingModel
             {
                 Id = id,
                 Name = model.Name
 
             });
-            ViewBag.Cost = cost.Read(null);
+            ViewBag.Cost = cost.GetFullList();
             return View("Cost");
         }
         [HttpPost]
         public ActionResult AddInspection(InspectionModel model, int id)
         {
-            foreach (var q in model.Cena)
+            foreach (var q in model.Cena)//проверяем кооектность данных в полях
             {
                 try
                 {
@@ -178,7 +171,7 @@ namespace WebApplication.Controllers
                         ModelState.AddModelError("", "Цена это положительное десятичное число");
 
                         ViewBag.Id = id;
-                        ViewBag.Cost = cost.Read(null).OrderBy(u => u.Name);
+                        ViewBag.Cost = cost.GetFullList().OrderBy(u => u.Name);
                         return View("AddInspection", model);
 
                     }
@@ -188,100 +181,109 @@ namespace WebApplication.Controllers
                     ModelState.AddModelError("", "Цена это положительное десятичное число");
 
                     ViewBag.Id = id;
-                    ViewBag.Cost = cost.Read(null).OrderBy(u => u.Name);
+                    ViewBag.Cost = cost.GetFullList().OrderBy(u => u.Name);
                     return View("AddInspection", model);
                 }
             }
+            Dictionary<int, decimal> icost = new Dictionary<int, decimal> { };
             if (id == 0)
             {
                 if (model.Name == null || model.Name == "")
                 {
                     ModelState.AddModelError("", "Вы не ввели название");
-                    ViewBag.Cost = cost.Read(null).OrderBy(u => u.Name);
+                    ViewBag.Cost = cost.GetFullList().OrderBy(u => u.Name);
                     return View("AddInspection", model);
                 }
 
 
-                var inspection = inspections.Read(new InspectionsBindingModel { Name = model.Name, UserId = (int)Program.User.Id });
-                if (inspection.Count != 0)
+                var inspection = inspections.GetElement(new InspectionsBindingModel { Name = model.Name, UserId = (int)Program.User.Id });
+
+                if (inspection != null)
                 {
                     ModelState.AddModelError("", "У вас уже есть  обследование с таким название");
-                    ViewBag.Cost = cost.Read(null).OrderBy(u => u.Name);
+                    ViewBag.Cost = cost.GetFullList().OrderBy(u => u.Name);
                     return View("AddInspection", model);
                 }
-                inspections.CreateOrUpdate(new InspectionsBindingModel
+                foreach (var i in model.Cena)
+                {
+                    icost.Add(i.Key, Convert.ToDecimal(i.Value));
+                }
+                inspections.Insert(new InspectionsBindingModel
                 {
                     Name = model.Name,
-                    UserId = (int)Program.User.Id
-
+                    UserId = (int)Program.User.Id,
+                    costInspections = icost
                 });
             }
-            if (id == 0)
-                id = (int)inspections.Read(new InspectionsBindingModel { Name = model.Name, UserId = (int)Program.User.Id })[0].Id;
-            foreach (var i in model.Cena)
+            else
             {
-                if (model.Name == null || model.Name == "")
+                foreach (var i in model.Cena)
                 {
-                    ModelState.AddModelError("", "Вы не ввели название");
-                    ViewBag.Id = id;
-                    ViewBag.Cost = cost.Read(null).OrderBy(u => u.Name);
-                    return View("AddInspection", model);
+                    icost.Add(i.Key, Convert.ToDecimal(i.Value));
                 }
-                var inspection = inspections.Read(new InspectionsBindingModel { Name = model.Name, UserId = (int)Program.User.Id });
-                if (inspection.Count != 0 && inspection[0].Id != id)
-                {
-                    ModelState.AddModelError("", "У вас уже есть  обследование с таким название");
-                    ViewBag.Id = id;
-                    ViewBag.Cost = cost.Read(null).OrderBy(u => u.Name);
-                    return View("AddInspection", model);
-                }
-                inspections.CreateOrUpdate(new InspectionsBindingModel
+                inspections.Update(new InspectionsBindingModel
                 {
                     Id = id,
                     Name = model.Name,
-                    UserId = (int)Program.User.Id
-
-                });
-                inspections.CreateOrUpdate(new CostInspectionsBindingModel
-                {
-                    Cena = Convert.ToDecimal(i.Value),
-                    InspectionId = (int)id,
-                    CostId = i.Key
-
+                    UserId = (int)Program.User.Id,
+                    costInspections = icost
                 });
             }
-            var inspection1 = inspections.Read(new InspectionsBindingModel { UserId = (int)Program.User.Id });
+            var inspection1 = inspections.GetFilteredList(new InspectionsBindingModel { UserId = (int)Program.User.Id });
             Dictionary<int, decimal> cena = new Dictionary<int, decimal>();
             foreach (var i in inspection1)
             {
                 cena.Add((int)i.Id,
-                    inspections.ReadCI(new CostInspectionsBindingModel { InspectionId = (int)i.Id }).ToList().Sum(x => x.Cena));
+                    inspections.GetElement(new InspectionsBindingModel { Id = (int)i.Id }).costInspections.Sum(x => x.Value));
             }
             ViewBag.Cena = cena;
-            ViewBag.In = inspection1;
+            ViewBag.Cost = cost.GetFullList();
+            ViewBag.In = inspections.GetFilteredList(new InspectionsBindingModel { UserId = (int)Program.User.Id });
             return RedirectToAction("Inspection");
         }
         public IActionResult InspectionCost(int id)
         {
             ViewBag.Id = id;
-            var ss = inspections.Read(new InspectionsBindingModel { Id = id })[0].Name;
-            var s2 = cost.Read(null); var s3 = inspections.ReadCI(new CostInspectionsBindingModel { InspectionId = id });
-            ViewBag.Name = inspections.Read(new InspectionsBindingModel { Id = id })[0].Name;
-            ViewBag.Cost = cost.Read(null);
-            ViewBag.In = inspections.ReadCI(new CostInspectionsBindingModel { InspectionId = id });
+            ViewBag.name = inspections.GetElement(new InspectionsBindingModel { Id = id }).Name;
+            ViewBag.Name = inspections.GetElement(new InspectionsBindingModel { Id = id });
+            ViewBag.Cost = cost.GetFullList();
             return View();
         }
 
         public IActionResult SendReport()
         {
-            ReportLogic.CreateDoc(new PdfInfo
+            SaveToPdf.CreateDoc(new Info
             {
                 FileName = $"C:\\data\\ReportInspection{DateTime.Now.Year}.pdf",
                 Title = $"Список обследований и затрат по ним сотрудника {Program.User.FIO}",
-                Costs = cost.Read(null),
-                CostInspections = inspections.ReadCI(null),
-                Inspections = inspections.Read(new InspectionsBindingModel { UserId = (int)Program.User.Id })
+                Costs = cost.GetFullList(),
+                Inspections = inspections.GetFilteredList(new InspectionsBindingModel { UserId = (int)Program.User.Id })
             });
+            SaveToExel.CreateDoc(new Info
+            {
+                FileName = $"C:\\data\\ReportInspection{DateTime.Now.Year}.xlsx",
+                Title = $"Список обследований и затрат по ним сотрудника {Program.User.FIO}",
+                Costs = cost.GetFullList(),
+                Inspections = inspections.GetFilteredList(new InspectionsBindingModel { UserId = (int)Program.User.Id })
+            });
+            SaveToWord.CreateDoc(new Info
+            {
+                FileName = $"C:\\data\\ReportInspection{DateTime.Now.Year}.docx",
+                Title = $"Список обследований и затрат по ним сотрудника {Program.User.FIO}",
+                Costs = cost.GetFullList(),
+                Inspections = inspections.GetFilteredList(new InspectionsBindingModel { UserId = (int)Program.User.Id })
+            });
+            MailAddress from = new MailAddress("zhuravlev1337.73@yandex.ru", "Отчет!");
+            MailAddress to = new MailAddress(Program.User.Email);
+            MailMessage m = new MailMessage(from, to);
+            m.Subject = $"Список обследований и затрат по ним сотрудника {Program.User.FIO}";
+            m.Attachments.Add(new Attachment($"C:\\data\\ReportInspection{DateTime.Now.Year}.pdf"));
+            m.Attachments.Add(new Attachment($"C:\\data\\ReportInspection{DateTime.Now.Year}.docx"));
+            m.Attachments.Add(new Attachment($"C:\\data\\ReportInspection{DateTime.Now.Year}.xlsx"));
+            SmtpClient smtp = new SmtpClient("smtp.yandex.ru", 587);
+            smtp.Credentials = new NetworkCredential("zhuravlev1337.73@yandex.ru", "zhura1337228");
+            smtp.EnableSsl = true;
+            smtp.Send(m);
             return RedirectToAction("Inspection");
         }
     }

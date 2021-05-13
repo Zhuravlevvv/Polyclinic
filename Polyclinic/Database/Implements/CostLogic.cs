@@ -11,29 +11,36 @@ namespace Database.Implements
 {
     public class CostLogic : ICost
     {
-        public void CreateOrUpdate(CostBindingModel model)
+        private Cost CreateModel(CostBindingModel model, Cost cost, Database context)
+        {
+            cost.Name = model.Name;
+            return cost;
+        }
+        public void Update(CostBindingModel model)
         {
             using (var context = new Database())
             {
-                Cost element = model.Id.HasValue ? null : new Cost();
-                if (model.Id.HasValue)
+                using (var transaction = context.Database.BeginTransaction())
                 {
-                    element = context.Costs.FirstOrDefault(rec => rec.Id == model.Id);
-                    if (element == null)
+                    try
                     {
-                        throw new Exception("Элемент не найден");
+                        var order = context.Costs.FirstOrDefault(rec => rec.Id == model.Id);
+                        if (order == null)
+                        {
+                            throw new Exception("Заказ не найдена");
+                        }
+                        CreateModel(model, order, context);
+                        context.SaveChanges();
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
                     }
                 }
-                else
-                {
-                    element = new Cost();
-                    context.Costs.Add(element);
-                }
-                element.Name = model.Name;
-                context.SaveChanges();
             }
         }
-
         public void Delete(CostBindingModel model)
         {
             using (var context = new Database())
@@ -51,20 +58,58 @@ namespace Database.Implements
                 }
             }
         }
-
-        public List<CostViewModels> Read(CostBindingModel model)
+        public void Insert(CostBindingModel model)
+        {
+            using (var context = new Database())
+            {
+                using (var transaction = context.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        Cost cost = new Cost();
+                        context.Costs.Add(cost);
+                        CreateModel(model, cost, context);
+                        context.SaveChanges();
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+        public CostViewModels GetElement(CostBindingModel model)//не используется
+        {
+            if (model == null)
+            {
+                return null;
+            }
+            using (var context = new Database())
+            {
+                var component = context.Costs
+                .FirstOrDefault(rec => rec.Name == model.Name ||
+               rec.Id == model.Id);
+                return component != null ?
+                new CostViewModels
+                {
+                    Id = component.Id,
+                    Name = component.Name
+                } :
+               null;
+            }
+        }
+        public List<CostViewModels> GetFullList()
         {
             using (var context = new Database())
             {
                 return context.Costs
-                 .Where(rec => model == null
-                   || rec.Id == model.Id
-                   || rec.Name == model.Name)
-               .Select(rec => new CostViewModels
-               {
-                   Id = rec.Id,
-                   Name = rec.Name
-               })
+                .Select(rec => new CostViewModels
+                {
+                    Id = rec.Id,
+                    Name = rec.Name
+                })
                .ToList();
             }
         }

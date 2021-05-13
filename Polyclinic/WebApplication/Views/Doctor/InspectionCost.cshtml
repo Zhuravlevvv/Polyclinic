@@ -2,7 +2,7 @@
     ViewData["Title"] = "Затраты по обследованию";
 }
 <div class="text-center text-info">
-    <h1>Затраты по обследованию @ViewBag.Name</h1>
+    <h1>Затраты по обследованию @ViewBag.name</h1>
 </div>
 <a class="btn btn-primary btn-sm" asp-controller="Doctor" asp-action="AddInspection" asp-route-id="@ViewBag.Id">Изменить затраты</a>
 
@@ -12,21 +12,21 @@
         <td>Название</td>
         <td>Цена</td>
     </tr>
-    @foreach (var ins in ViewBag.In)
+    @foreach (var ins in ViewBag.Name.costInspections)
     {
         @foreach (var cost in ViewBag.Cost)
         {
-            @if (cost.Id == ins.CostId)
+            @if (cost.Id == ins.Key)
             {
-                @if ((ins.Cena != 0))
+                @if ((ins.Value != 0))
                 {
                     <tr>
 
                         <td>@cost.Name</td>
 
-                        <td>@ins.Cena</td>
+                        <td>@ins.Value</td>
                         <td>
-                            <a class="btn btn-primary btn-sm btn-block" asp-action="DeleteIC" asp-route-id="@cost.Id">Удалениe</a>
+                            <a class="btn btn-primary btn-sm btn-block" asp-action="DeleteIC" asp-route-id1="@ViewBag.Name.Id" asp-route-id="@cost.Id">Удалениe</a>
                         </td>
                     </tr>
                 }

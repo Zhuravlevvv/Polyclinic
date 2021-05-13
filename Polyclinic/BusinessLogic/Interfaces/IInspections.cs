@@ -8,11 +8,13 @@ namespace BusinessLogic.Interfaces
 {
     public interface IInspections
     {
-        List<InspectionsViewModels> Read(InspectionsBindingModel model);
-        List<CostInspectionsViewModels> ReadCI(CostInspectionsBindingModel model);
-        void CreateOrUpdate(InspectionsBindingModel model);
-        void CreateOrUpdate(CostInspectionsBindingModel model);
-        void Delete(InspectionsBindingModel model);
         void DeleteCost(CostInspectionsBindingModel model);
+        List<InspectionsViewModels> GetFullList();
+        InspectionsViewModels GetElement(InspectionsBindingModel model);
+        CostInspectionsViewModels GetElement(CostInspectionsBindingModel model);
+        void Insert(InspectionsBindingModel model);
+        void Update(InspectionsBindingModel model);
+        void Delete(InspectionsBindingModel model);
+        List<InspectionsViewModels> GetFilteredList(InspectionsBindingModel model);
     }
 }

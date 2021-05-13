@@ -19,7 +19,6 @@ namespace WebApplication.Controllers
         public UserController(IUsers user)
         {
             this.user = user;
-
         }
 
         public IActionResult Login()
@@ -29,20 +28,20 @@ namespace WebApplication.Controllers
         [HttpPost]
         public ActionResult Login(LoginModel client, string Status)
         {
-            var clientView = user.Read(new UsersBindingModel
+            var clientView = user.GetElement(new UsersBindingModel
             {
                 FIO = client.FIO,
                 Password = client.Password,
-                Status = BusinessLogic.Enum.StatusUser.Клиент
-            }).FirstOrDefault();
+                Status = StatusUser.Клиент
+            });
             if (Status == "Сотрудник")
             {
-                clientView = user.Read(new UsersBindingModel
+                clientView = user.GetElement(new UsersBindingModel
                 {
                     FIO = client.FIO,
                     Password = client.Password,
                     Status = BusinessLogic.Enum.StatusUser.Сотрудник
-                }).FirstOrDefault();
+                });
             }
             if (clientView == null)
             {
@@ -76,11 +75,11 @@ namespace WebApplication.Controllers
             var status = StatusUser.Клиент;
             if (Status == "Сотрудник")
                 status = StatusUser.Сотрудник;
-            var existClient = user.Read(new UsersBindingModel
+            var existClient = user.GetElement(new UsersBindingModel
             {
                 FIO = client.FIO,
                 Status = status
-            }).FirstOrDefault();
+            });
             if (existClient != null)
             {
                 ModelState.AddModelError("", "Данный логин уже занят");
@@ -91,10 +90,10 @@ namespace WebApplication.Controllers
                 ModelState.AddModelError("", "Введите электронную почту");
                 return View(client);
             }
-            existClient = user.Read(new UsersBindingModel
+            existClient = user.GetElement(new UsersBindingModel
             {
                 Email = client.Email
-            }).FirstOrDefault();
+            });
             if (existClient != null)
             {
                 ModelState.AddModelError("", "Данный E-Mail уже занят");
@@ -123,7 +122,7 @@ namespace WebApplication.Controllers
                 return View(client);
             }
 
-            user.CreateOrUpdate(new UsersBindingModel
+            user.Insert(new UsersBindingModel
             {
                 FIO = client.FIO,
                 Status = status,

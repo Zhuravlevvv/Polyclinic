@@ -9,5 +9,6 @@ namespace BusinessLogic.BindingModel
         public int? Id { get; set; }
         public int UserId { get; set; }
         public string Name { get; set; }
+        public Dictionary<int, decimal> costInspections { get; set; }// costid, cena
     }
 }

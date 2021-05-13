@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Database.Models
 {
-    public   class CostInspection
+    public class CostInspection
     {
         public int? Id { get; set; }
         public int InspectionId { get; set; }

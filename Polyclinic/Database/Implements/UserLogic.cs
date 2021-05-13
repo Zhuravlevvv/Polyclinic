@@ -11,57 +11,62 @@ namespace Database.Implements
 {
     public class UserLogic : IUsers
     {
-        public void CreateOrUpdate(UsersBindingModel model)
+        private User CreateModel(UsersBindingModel model, User user, Database context)
         {
-            using (var context = new Database())
-            {
-                User element = model.Id.HasValue ? null : new User();
-                if (model.Id.HasValue)
-                {
-                    element = context.Users.FirstOrDefault(rec => rec.Id == model.Id);
-                    if (element == null)
-                    {
-                        throw new Exception("Элемент не найден");
-                    }
-                }
-                else
-                {
-                    element = new User();
-                    context.Users.Add(element);
-                }
-                element.Email = model.Email;
-                element.FIO = model.FIO;
-                element.PhoneNumber = model.PhoneNumber;
-                element.Status = model.Status;
-                element.Password = model.Password;
-                context.SaveChanges();
-            }
+            user.Email = model.Email;
+            user.FIO = model.FIO;
+            user.PhoneNumber = model.PhoneNumber;
+            user.Status = model.Status;
+            user.Password = model.Password;
+            return user;
         }
 
-
-
-        public List<UsersViewModels> Read(UsersBindingModel model)
+        public void Insert(UsersBindingModel model)
         {
             using (var context = new Database())
             {
-                return context.Users
-                 .Where(rec => model == null
+                using (var transaction = context.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        User cost = new User();
+                        context.Users.Add(cost);
+                        CreateModel(model, cost, context);
+                        context.SaveChanges();
+
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+        public UsersViewModels GetElement(UsersBindingModel model)
+        {
+            if (model == null)
+            {
+                return null;
+            }
+            using (var context = new Database())
+            {
+                var component = context.Users
+                .FirstOrDefault(rec => model == null
                    || rec.Id == model.Id
-                   || (rec.FIO == model.FIO && (rec.Password == model.Password || model.Password == null) && rec.Status == model.Status)
-
-                   || rec.Email == model.Email)
-               .Select(rec => new UsersViewModels
-               {
-                   Id = rec.Id,
-                   FIO = rec.FIO,
-                   Status = rec.Status,
-                   Email = rec.Email,
-                   Password = rec.Password,
-                   PhoneNumber = rec.PhoneNumber
-
-
-               })
-                .ToList();
+                   || (rec.FIO == model.FIO && rec.Password == model.Password && rec.Status == model.Status));
+                return component != null ?
+                new UsersViewModels
+                {
+                    Id = component.Id,
+                    FIO = component.FIO,
+                    Status = component.Status,
+                    Email = component.Email,
+                    Password = component.Password,
+                    PhoneNumber = component.PhoneNumber
+                } :
+               null;
             }
         }
     }

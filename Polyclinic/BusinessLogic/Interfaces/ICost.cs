@@ -8,8 +8,10 @@ namespace BusinessLogic.Interfaces
 {
     public interface ICost
     {
-        List<CostViewModels> Read(CostBindingModel model);
-        void CreateOrUpdate(CostBindingModel model);
+        List<CostViewModels> GetFullList();
+        CostViewModels GetElement(CostBindingModel model);
+        void Insert(CostBindingModel model);
+        void Update(CostBindingModel model);
         void Delete(CostBindingModel model);
     }
 }

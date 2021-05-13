@@ -2,6 +2,7 @@
 using BusinessLogic.Interfaces;
 using BusinessLogic.ViewModels;
 using Database.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,75 +12,6 @@ namespace Database.Implements
 {
     public class InspectionLogic : IInspections
     {
-        public void CreateOrUpdate(InspectionsBindingModel model)
-        {
-            using (var context = new Database())
-            {
-                Inspection element = model.Id.HasValue ? null : new Inspection();
-                if (model.Id.HasValue)
-                {
-                    element = context.Inspections.FirstOrDefault(rec => rec.Id == model.Id);
-                    if (element == null)
-                    {
-                        throw new Exception("Элемент не найден");
-                    }
-                }
-                else
-                {
-                    element = new Inspection();
-                    context.Inspections.Add(element);
-                }
-                element.Name = model.Name;
-                element.UserId = model.UserId;
-                context.SaveChanges();
-            }
-        }
-
-        public void CreateOrUpdate(CostInspectionsBindingModel model)
-        {
-            using (var context = new Database())
-            {
-                CostInspection element = model.Id.HasValue ? null : new CostInspection();
-                if (model.CostId != 0 && model.InspectionId != 0)
-                {
-                    element = context.CostInspections.FirstOrDefault(rec => rec.InspectionId == model.InspectionId && rec.CostId == model.CostId);
-                    if (element == null)
-                    {
-                        element = new CostInspection();
-                        context.CostInspections.Add(element);
-                    }
-                }
-                else
-                {
-                    element = new CostInspection();
-                    context.CostInspections.Add(element);
-                }
-                element.Cena = model.Cena;
-                element.CostId = model.CostId;
-                element.InspectionId = model.InspectionId;
-
-                context.SaveChanges();
-            }
-        }
-
-        public void Delete(InspectionsBindingModel model)
-        {
-            using (var context = new Database())
-            {
-                Inspection element = context.Inspections.FirstOrDefault(rec => rec.Id == model.Id);
-
-                if (element != null)
-                {
-                    context.Inspections.Remove(element);
-                    context.SaveChanges();
-                }
-                else
-                {
-                    throw new Exception("Элемент не найден");
-                }
-            }
-        }
-
         public void DeleteCost(CostInspectionsBindingModel model)
         {
             using (var context = new Database())
@@ -98,41 +30,205 @@ namespace Database.Implements
             }
         }
 
-        public List<InspectionsViewModels> Read(InspectionsBindingModel model)
+
+        public List<InspectionsViewModels> GetFullList()
         {
             using (var context = new Database())
             {
                 return context.Inspections
-                 .Where(rec => model == null
-                   || rec.Id == model.Id
-                   || ((rec.Name == model.Name || model.Name == null) && rec.UserId == model.UserId))
+                .Include(rec => rec.CostInspection)
+               .ThenInclude(rec => rec.Cost)
+               .ToList()
                .Select(rec => new InspectionsViewModels
                {
                    Id = rec.Id,
                    Name = rec.Name,
-                   UserId = rec.UserId
+                   UserId = rec.UserId,
+                   costInspections = rec.CostInspection
+                .ToDictionary(recPC => (int)recPC.CostId, recPC =>
+               (recPC.Cena))
                })
-                .ToList();
+               .ToList();
             }
         }
-
-        public List<CostInspectionsViewModels> ReadCI(CostInspectionsBindingModel model)
+        public List<InspectionsViewModels> GetFilteredList(InspectionsBindingModel model)
+        {
+            if (model == null)
+            {
+                return null;
+            }
+            using (var context = new Database())
+            {
+                return context.Inspections
+                .Include(costi => costi.CostInspection)
+                .ThenInclude(cost => cost.Cost)
+               .Where(ins => ins.UserId == model.UserId
+               )
+               .ToList()
+               .Select(rec => new InspectionsViewModels
+               {
+                   Id = rec.Id,
+                   Name = rec.Name,
+                   UserId = rec.UserId,
+                   costInspections = rec.CostInspection
+                 .ToDictionary(recPC => (int)recPC.CostId, recPC =>
+               (recPC.Cena))
+               })
+               .ToList();
+            }
+        }
+        public InspectionsViewModels GetElement(InspectionsBindingModel model)
+        {
+            if (model == null)
+            {
+                return null;
+            }
+            using (var context = new Database())
+            {
+                var product = context.Inspections
+                .Include(rec => rec.CostInspection)
+               .ThenInclude(rec => rec.Cost)
+               .FirstOrDefault(rec => rec.Id == model.Id ||
+                (rec.Name.Contains(model.Name) && rec.UserId == model.UserId)
+               );
+                return product != null ?
+                new InspectionsViewModels
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    UserId = product.UserId,
+                    costInspections = product.CostInspection
+                 .ToDictionary(recPC => (int)recPC.CostId, recPC =>
+               (recPC.Cena))
+                } :
+               null;
+            }
+        }
+        public CostInspectionsViewModels GetElement(CostInspectionsBindingModel model)
+        {
+            if (model == null)
+            {
+                return null;
+            }
+            using (var context = new Database())
+            {
+                var product = context.CostInspections
+               .FirstOrDefault(rec => rec.Id == model.Id || (rec.CostId == model.CostId && rec.InspectionId == model.InspectionId));
+                return product != null ?
+                new CostInspectionsViewModels
+                {
+                    Id = product.Id,
+                    Cena = product.Cena,
+                    CostId = product.CostId,
+                    InspectionId = product.InspectionId
+                } :
+               null;
+            }
+        }
+        public void Insert(InspectionsBindingModel model)
         {
             using (var context = new Database())
             {
-                return context.CostInspections
-                 .Where(rec => model == null
-                   || rec.Id == model.Id
-                   || rec.InspectionId == model.InspectionId)
-               .Select(rec => new CostInspectionsViewModels
-               {
-                   Id = rec.Id,
-                   Cena = rec.Cena,
-                   InspectionId = rec.InspectionId,
-                   CostId = rec.CostId
-               })
-                .ToList();
+                using (var transaction = context.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        Inspection ins = new Inspection();
+                        context.Inspections.Add(ins);
+                        CreateModel(model, ins, context);
+                        context.SaveChanges();
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
             }
+        }
+        public void Update(InspectionsBindingModel model)
+        {
+            using (var context = new Database())
+            {
+                using (var transaction = context.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        var element = context.Inspections.FirstOrDefault(rec => rec.Id ==
+                       model.Id);
+                        if (element == null)
+                        {
+                            throw new Exception("Элемент не найден");
+                        }
+                        CreateModel(model, element, context);
+                        context.SaveChanges();
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+        public void Delete(InspectionsBindingModel model)
+        {
+            using (var context = new Database())
+            {
+                Inspection element = context.Inspections.FirstOrDefault(rec => rec.Id ==
+               model.Id);
+                if (element != null)
+                {
+                    context.Inspections.Remove(element);
+                    context.SaveChanges();
+                }
+                else
+                {
+                    throw new Exception("Элемент не найден");
+                }
+            }
+        }
+        private Inspection CreateModel(InspectionsBindingModel model, Inspection product,
+       Database context)
+        {
+            product.Name = model.Name;
+            product.UserId = model.UserId;
+            if (model.Id.HasValue)
+            {
+                var productComponents = context.CostInspections.Where(rec =>
+               rec.InspectionId == model.Id.Value).ToList();
+                // удалили те, которых нет в модели
+                context.CostInspections.RemoveRange(productComponents.Where(rec =>
+               !model.costInspections.ContainsKey(rec.CostId)).ToList());
+                context.SaveChanges();
+                // обновили количество у существующих записей
+                foreach (var updateComponent in productComponents)
+                {
+                    updateComponent.Cena =
+                   model.costInspections[updateComponent.CostId] + updateComponent.Cena;
+                    model.costInspections.Remove(updateComponent.CostId);
+                }
+
+            }
+            context.SaveChanges();
+            // добавили новые
+            foreach (var pc in model.costInspections)
+            {
+                if (pc.Value > 0)
+                {
+                    context.CostInspections.Add(new CostInspection
+                    {
+                        InspectionId = (int)product.Id,
+                        CostId = pc.Key,
+                        Cena = pc.Value
+                    });
+                    context.SaveChanges();
+                }
+            }
+
+            return product;
         }
     }
 }       

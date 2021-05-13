@@ -9,9 +9,9 @@ using System.Text;
 
 namespace Database.Implements
 {
-    public class ReportLogic
+    public class SaveToPdf
     {
-        public static void CreateDoc(PdfInfo info)
+        public static void CreateDoc(Info info)
         {
             Document document = new Document();
             DefineStyles(document);
@@ -45,26 +45,23 @@ namespace Database.Implements
                         ParagraphAlignment = ParagraphAlignment.Center
                     });
 
-                    foreach (var ci in info.CostInspections.Where(rec => rec.InspectionId == inspection.Id))
+                    foreach (var ci in inspection.costInspections)
                     {
-                        if (ci.Cena > 0)
-                        {
-                            var cost = info.Costs.Where(rec => rec.Id == ci.CostId).FirstOrDefault();
+                            var cost = info.Costs.Where(rec => rec.Id == ci.Key).FirstOrDefault();
 
                             CreateRow(new PdfRowParameters
                             {
                                 Table = doctorTable,
-                                Texts = new List<string> { "", cost.Name, ci.Cena.ToString() },
+                                Texts = new List<string> { "", cost.Name, ci.Value.ToString() },
                                 Style = "Normal",
                                 ParagraphAlignment = ParagraphAlignment.Left
                             });
-                        }
                     }
-                    if (info.CostInspections.Where(rec => rec.InspectionId == inspection.Id).Sum(x => x.Cena) > 0)
+                    if (inspection.costInspections.Sum(x => x.Value) > 0)
                         CreateRow(new PdfRowParameters
                         {
                             Table = doctorTable,
-                            Texts = new List<string> { "", "Итого:", info.CostInspections.Where(rec => rec.InspectionId == inspection.Id).Sum(x => x.Cena).ToString() },
+                            Texts = new List<string> { "", "Итого:", inspection.costInspections.Sum(x => x.Value).ToString() },
                             Style = "Normal",
                             ParagraphAlignment = ParagraphAlignment.Left
                         });
