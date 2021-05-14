@@ -273,15 +273,15 @@ namespace WebApplication.Controllers
                 Costs = cost.GetFullList(),
                 Inspections = inspections.GetFilteredList(new InspectionsBindingModel { UserId = (int)Program.User.Id })
             });
-            MailAddress from = new MailAddress("zhuravlev1337.73@yandex.ru", "Отчет!");
+            MailAddress from = new MailAddress("zrider1121@gmail.com", "Отчет!");
             MailAddress to = new MailAddress(Program.User.Email);
             MailMessage m = new MailMessage(from, to);
             m.Subject = $"Список обследований и затрат по ним сотрудника {Program.User.FIO}";
             m.Attachments.Add(new Attachment($"C:\\data\\ReportInspection{DateTime.Now.Year}.pdf"));
             m.Attachments.Add(new Attachment($"C:\\data\\ReportInspection{DateTime.Now.Year}.docx"));
             m.Attachments.Add(new Attachment($"C:\\data\\ReportInspection{DateTime.Now.Year}.xlsx"));
-            SmtpClient smtp = new SmtpClient("smtp.yandex.ru", 587);
-            smtp.Credentials = new NetworkCredential("zhuravlev1337.73@yandex.ru", "zhura1337228");
+            SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
+            smtp.Credentials = new NetworkCredential("zrider1121@gmail.com", "Zhura1337227");
             smtp.EnableSsl = true;
             smtp.Send(m);
             return RedirectToAction("Inspection");
