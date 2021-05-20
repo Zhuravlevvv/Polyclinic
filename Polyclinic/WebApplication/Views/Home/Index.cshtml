@@ -1,8 +1,14 @@
 ﻿@{
     ViewData["Title"] = "Главная";
 }
+<hr />
 <div class="text-center">
-   @if (Program.User != null)
+    <h1 class="display-4">Добро пожаловать!</h1>
+    <h1 class="display-6">Поликлиника "Будьте больны"</h1>
+</div>
+<hr />
+<div class="text-center">
+    @if (Program.User != null)
     {
         <hr />
         @Program.User.Status
@@ -11,7 +17,4 @@
         <hr />
     }
 </div>
-
-
-
 
