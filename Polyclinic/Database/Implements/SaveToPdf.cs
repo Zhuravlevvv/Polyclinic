@@ -11,7 +11,7 @@ namespace Database.Implements
 {
     public class SaveToPdf
     {
-        public static void CreateDoc(Info info)
+       public static void CreateDoc(Info info)
         {
             Document document = new Document();
             DefineStyles(document);
@@ -25,7 +25,7 @@ namespace Database.Implements
             {
                 doctorTable.AddColumn(elem);
             }
-            if (info.Inspections != null)
+            if (info.InspectionsCost != null)
             {
                 CreateRow(new PdfRowParameters
                 {
@@ -34,7 +34,7 @@ namespace Database.Implements
                     Style = "NormalTitle",
                     ParagraphAlignment = ParagraphAlignment.Center
                 });
-                foreach (var inspection in info.Inspections)
+                foreach (var inspection in info.InspectionsCost)
                 {
 
                     CreateRow(new PdfRowParameters
@@ -45,23 +45,21 @@ namespace Database.Implements
                         ParagraphAlignment = ParagraphAlignment.Center
                     });
 
-                    foreach (var ci in inspection.costInspections)
+                    foreach (var ci in inspection.Details)
                     {
-                            var cost = info.Costs.Where(rec => rec.Id == ci.Key).FirstOrDefault();
-
                             CreateRow(new PdfRowParameters
                             {
                                 Table = doctorTable,
-                                Texts = new List<string> { "", cost.Name, ci.Value.ToString() },
+                                Texts = new List<string> { "", ci.Item1, ci.Item2.ToString() },
                                 Style = "Normal",
                                 ParagraphAlignment = ParagraphAlignment.Left
                             });
                     }
-                    if (inspection.costInspections.Sum(x => x.Value) > 0)
+                    if (inspection.Details.Sum(x => x.Item2) > 0)
                         CreateRow(new PdfRowParameters
                         {
                             Table = doctorTable,
-                            Texts = new List<string> { "", "Итого:", inspection.costInspections.Sum(x => x.Value).ToString() },
+                            Texts = new List<string> { "", "Итого:", inspection.Details.Sum(x => x.Item2).ToString() },
                             Style = "Normal",
                             ParagraphAlignment = ParagraphAlignment.Left
                         });

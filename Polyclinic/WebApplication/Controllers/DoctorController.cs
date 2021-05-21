@@ -3,8 +3,12 @@ using BusinessLogic.HelperModels;
 using BusinessLogic.Interfaces;
 using BusinessLogic.ViewModels;
 using Database.Implements;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,14 +21,35 @@ namespace WebApplication.Controllers
 {
     public class DoctorController : Controller
     {
+        private readonly IWebHostEnvironment _environment;
+
         private readonly ICost cost;
         private readonly IInspections inspections;
-        public DoctorController(ICost cost, IInspections inspections)
+        private readonly ReportLogic logic;
+        public DoctorController(ICost cost, ReportLogic logic, IInspections inspections)
         {
+            this.logic = logic;
             this.cost = cost;
             this.inspections = inspections;
         }
+        public IActionResult Diagram()
+        {
+            return View();
+        }
+        [HttpGet]
+        public JsonResult Metod()
+        {
+            List<DiagramViewModel> testDataFirst = new List<DiagramViewModel>();
+            var visits = inspections.GetFilteredList(new InspectionsBindingModel { UserId = (int)Program.User.Id });
+            foreach (var v in visits)
 
+                testDataFirst.Add(new DiagramViewModel()
+                {
+                    cityName = v.Name,
+                    PopulationYear2020 = v.costInspections.Count()
+                });
+            return Json(testDataFirst);
+        }
         public IActionResult Cost()
         {
             if (TempData["ErrorLack"] != null)
@@ -249,42 +274,72 @@ namespace WebApplication.Controllers
             ViewBag.Cost = cost.GetFullList();
             return View();
         }
-
         public IActionResult SendReport()
         {
-            SaveToPdf.CreateDoc(new Info
+            logic.SaveToPdfFile(new ReportBindingModel
             {
                 FileName = $"C:\\data\\ReportInspection{DateTime.Now.Year}.pdf",
                 Title = $"Список обследований и затрат по ним сотрудника {Program.User.FIO}",
-                Costs = cost.GetFullList(),
-                Inspections = inspections.GetFilteredList(new InspectionsBindingModel { UserId = (int)Program.User.Id })
+                User = Program.User
             });
-            SaveToExel.CreateDoc(new Info
+
+            return RedirectToAction("Inspection");
+        }
+        public IActionResult SendReportExel()
+        {
+
+            logic.SaveDetailToExcelFile(new ReportBindingModel
             {
                 FileName = $"C:\\data\\ReportInspection{DateTime.Now.Year}.xlsx",
                 Title = $"Список обследований и затрат по ним сотрудника {Program.User.FIO}",
-                Costs = cost.GetFullList(),
-                Inspections = inspections.GetFilteredList(new InspectionsBindingModel { UserId = (int)Program.User.Id })
+                User = Program.User
             });
-            SaveToWord.CreateDoc(new Info
+            return RedirectToAction("Inspection");
+        }
+        public IActionResult SendReportWord()
+        {
+
+            logic.SaveDetailsToWordFile(new ReportBindingModel
             {
                 FileName = $"C:\\data\\ReportInspection{DateTime.Now.Year}.docx",
                 Title = $"Список обследований и затрат по ним сотрудника {Program.User.FIO}",
-                Costs = cost.GetFullList(),
-                Inspections = inspections.GetFilteredList(new InspectionsBindingModel { UserId = (int)Program.User.Id })
+                User = Program.User
             });
-            MailAddress from = new MailAddress("zrider1121@gmail.com", "Отчет!");
-            MailAddress to = new MailAddress(Program.User.Email);
-            MailMessage m = new MailMessage(from, to);
-            m.Subject = $"Список обследований и затрат по ним сотрудника {Program.User.FIO}";
-            m.Attachments.Add(new Attachment($"C:\\data\\ReportInspection{DateTime.Now.Year}.pdf"));
-            m.Attachments.Add(new Attachment($"C:\\data\\ReportInspection{DateTime.Now.Year}.docx"));
-            m.Attachments.Add(new Attachment($"C:\\data\\ReportInspection{DateTime.Now.Year}.xlsx"));
-            SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
-            smtp.Credentials = new NetworkCredential("zrider1121@gmail.com", "Zhura1337227");
-            smtp.EnableSsl = true;
-            smtp.Send(m);
             return RedirectToAction("Inspection");
+        }
+
+        public IActionResult Spisok()
+        {
+            ViewData["Id"] = new MultiSelectList(
+                inspections.GetFilteredList(
+                    new InspectionsBindingModel { UserId = (int)Program.User.Id }), "Id", "Name");
+            return View();
+        }
+        [HttpPost]
+        public IActionResult MakeListDoc([Bind("Selected")] ReportBindingModel model)
+        {
+            model.FileName = $"C:\\data\\ReportCosts{DateTime.Now.Year}.docx";
+            model.User = Program.User;
+            model.Title = $"Список затрат";
+            logic.SaveDetailsToWordFile(model);
+            ViewData["Id"] = new MultiSelectList(
+                inspections.GetFilteredList(
+                    new InspectionsBindingModel { UserId = (int)Program.User.Id }), "Id", "Name");
+
+            return View("Spisok");
+        }
+
+        [HttpPost]
+        public IActionResult MakeListXls([Bind("Selected")] ReportBindingModel model)
+        {
+            model.FileName = $"C:\\data\\ReportCostInspection{DateTime.Now.Year}.xlsx";
+            model.User = Program.User;
+            model.Title = $"Список затрат по обследованиям";
+            logic.SaveDetailToExcelFile(model);
+            ViewData["Id"] = new MultiSelectList(
+                inspections.GetFilteredList(
+                   new InspectionsBindingModel { UserId = (int)Program.User.Id }), "Id", "Name");
+            return View("Spisok");
         }
     }
 }

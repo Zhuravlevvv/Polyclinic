@@ -1,0 +1,35 @@
+﻿@model BusinessLogic.BindingModel.ReportBindingModel
+
+@{ ViewData["Title"] = "Spisok"; }
+
+<div class="text-center mt-5">
+    <h1>Получить список</h1>
+</div>
+<hr />
+
+<div class="row">
+    <div class="col-md-4 offset-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Selected" class="control-label mt-3">Список</label>
+                <select asp-for="Selected" id="lesson" class="form-control" multiple required asp-items="ViewBag.Id"></select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Получить doc" asp-action="MakeListDoc" class="btn btn-primary mt-5" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Получить xls" asp-action="MakeListXls" class="btn btn-primary mt-3" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Назад</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

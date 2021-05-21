@@ -1,5 +1,5 @@
-﻿
-using BusinessLogic.HelperModels;
+﻿using BusinessLogic.HelperModels;
+using BusinessLogic.ViewModels;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Office2013.Excel;
@@ -12,7 +12,7 @@ using System.Text;
 
 namespace Database.Implements
 {
-   public  class SaveToExel
+    public class SaveToExel
     {
         public static void CreateDoc(Info info)
         {
@@ -80,9 +80,9 @@ namespace Database.Implements
                     Text = "Цена",
                     StyleIndex = 0U
                 });
-            
+
                 uint i = 1;
-                foreach (var inspection in info.Inspections)
+                foreach (var inspection in info.InspectionsCost)
                 {
                     InsertCellInWorksheet(new ExcelCellParameters
                     {
@@ -94,16 +94,16 @@ namespace Database.Implements
                         StyleIndex = 0U
                     });
                     i++;
-                    foreach (var ci in inspection.costInspections)
+                    foreach (var ci in inspection.Details)
                     {
-                        var cost = info.Costs.Where(rec => rec.Id == ci.Key).FirstOrDefault();
+
                         InsertCellInWorksheet(new ExcelCellParameters
                         {
                             Worksheet = worksheetPart.Worksheet,
                             ShareStringPart = shareStringPart,
                             ColumnName = "B",
                             RowIndex = i + 2,
-                            Text = cost.Name,
+                            Text = ci.Item1,
                             StyleIndex = 0U
                         });
                         InsertCellInWorksheet(new ExcelCellParameters
@@ -112,12 +112,12 @@ namespace Database.Implements
                             ShareStringPart = shareStringPart,
                             ColumnName = "C",
                             RowIndex = i + 2,
-                            Text = ci.Value.ToString(),
+                            Text = ci.Item2.ToString(),
                             StyleIndex = 0U
                         });
                         i++;
                     }
-                    if (inspection.costInspections.Sum(x => x.Value) > 0)
+                    if (inspection.Details.Sum(x => x.Item2) > 0)
                         InsertCellInWorksheet(new ExcelCellParameters
                         {
                             Worksheet = worksheetPart.Worksheet,
@@ -128,19 +128,19 @@ namespace Database.Implements
                             StyleIndex = 0U
                         });
                     InsertCellInWorksheet(new ExcelCellParameters
-                        {
-                            Worksheet = worksheetPart.Worksheet,
-                            ShareStringPart = shareStringPart,
-                            ColumnName = "C",
-                            RowIndex = i + 2,
-                            Text = inspection.costInspections.Sum(x => x.Value).ToString(),
-                            StyleIndex = 0U
-                        });
+                    {
+                        Worksheet = worksheetPart.Worksheet,
+                        ShareStringPart = shareStringPart,
+                        ColumnName = "C",
+                        RowIndex = i + 2,
+                        Text = inspection.Details.Sum(x => x.Item2).ToString(),
+                        StyleIndex = 0U
+                    });
                     i++;
 
 
                 }
-                 workbookpart.Workbook.Save();
+                workbookpart.Workbook.Save();
             }
         }
         private static void CreateStyles(WorkbookPart workbookpart)

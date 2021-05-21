@@ -29,6 +29,7 @@ namespace WebApplication
             services.AddTransient<IUsers, UserLogic>();
             services.AddTransient<ICost, CostLogic>();
             services.AddTransient<IInspections, InspectionLogic>();
+            services.AddTransient<ReportLogic>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
