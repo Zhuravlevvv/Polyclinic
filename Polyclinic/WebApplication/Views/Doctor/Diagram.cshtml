@@ -1,4 +1,7 @@
-﻿<title>@ViewData["Диаграмма"] - DemoGoogleChart</title>
+﻿@{
+    ViewData["Title"] = "Диаграмма";
+}
+
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
 <div id="chart_div"></div>
@@ -44,7 +47,7 @@
                 minValue: 0
             },
             vAxis: {
-                title: 'Количество затрат'
+                title: 'Количество затрат по каждому обследованию'
             }
         };
         var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));

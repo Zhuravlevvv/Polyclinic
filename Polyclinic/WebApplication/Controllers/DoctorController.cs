@@ -273,11 +273,20 @@ namespace WebApplication.Controllers
             return View();
         }
 
+        public IActionResult MakeReport(ReportBindingModel model)
+        {
+            model.FileName = @".\wwwroot\Report\ReportInspection.pdf";
+            model.User = Program.User;
+            logic.SaveToPdfFile(model);
+            ViewBag.CheckingReport = model.FileName;
+            return View("Index");
+        }
+
         public IActionResult SendReport()
         {
             logic.SaveToPdfFile(new ReportBindingModel
             {
-                FileName = $"C:\\data\\ReportInspection{DateTime.Now.Year}.pdf",
+                FileName = @".\wwwroot\Report\ReportInspection.pdf",
                 Title = $"Список обследований и затрат по ним сотрудника {Program.User.FIO}",
                 User = Program.User
             });
@@ -289,7 +298,7 @@ namespace WebApplication.Controllers
 
             logic.SaveDetailToExcelFile(new ReportBindingModel
             {
-                FileName = $"C:\\data\\ReportInspection{DateTime.Now.Year}.xlsx",
+                FileName = @".\wwwroot\Report\ListCostInspection.xlsx",
                 Title = $"Список обследований и затрат по ним сотрудника {Program.User.FIO}",
                 User = Program.User
             });
@@ -300,7 +309,7 @@ namespace WebApplication.Controllers
 
             logic.SaveDetailsToWordFile(new ReportBindingModel
             {
-                FileName = $"C:\\data\\ReportInspection{DateTime.Now.Year}.docx",
+                FileName = @".\wwwroot\Report\ReportCosts.docx",
                 Title = $"Список обследований и затрат по ним сотрудника {Program.User.FIO}",
                 User = Program.User
             });
@@ -317,7 +326,7 @@ namespace WebApplication.Controllers
         [HttpPost]
         public IActionResult MakeListDoc([Bind("Selected")] ReportBindingModel model)
         {
-            model.FileName = $"C:\\data\\ReportCosts{DateTime.Now.Year}.docx";
+            model.FileName = @".\wwwroot\Report\ReportCosts.docx";
             model.User = Program.User;
             model.Title = $"Список затрат";
             logic.SaveDetailsToWordFile(model);
@@ -331,7 +340,7 @@ namespace WebApplication.Controllers
         [HttpPost]
         public IActionResult MakeListXls([Bind("Selected")] ReportBindingModel model)
         {
-            model.FileName = $"C:\\data\\ReportCostInspection{DateTime.Now.Year}.xlsx";
+            model.FileName = @".\wwwroot\Report\ListCostInspection.xlsx";
             model.User = Program.User;
             model.Title = $"Список затрат по обследованиям";
             logic.SaveDetailToExcelFile(model);
