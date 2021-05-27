@@ -1,4 +1,4 @@
-﻿<<title>@ViewData["Title"] - DemoGoogleChart</title>
+﻿<title>@ViewData["Диаграмма"] - DemoGoogleChart</title>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
 <div id="chart_div"></div>
@@ -25,7 +25,7 @@
     }
     function Metod(data) {
         var dataArray = [
-            ['Date', 'Count Cost']
+            ['Date', 'Количество Затрат']
         ];
         $.each(data, function (i, item) {
             dataArray.push([item.cityName, item.populationYear2020]);
@@ -44,7 +44,7 @@
                 minValue: 0
             },
             vAxis: {
-                title: 'Count Затрат'
+                title: 'Количество затрат'
             }
         };
         var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));

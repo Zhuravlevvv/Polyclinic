@@ -21,8 +21,6 @@ namespace WebApplication.Controllers
 {
     public class DoctorController : Controller
     {
-        private readonly IWebHostEnvironment _environment;
-
         private readonly ICost cost;
         private readonly IInspections inspections;
         private readonly ReportLogic logic;
@@ -274,6 +272,7 @@ namespace WebApplication.Controllers
             ViewBag.Cost = cost.GetFullList();
             return View();
         }
+
         public IActionResult SendReport()
         {
             logic.SaveToPdfFile(new ReportBindingModel

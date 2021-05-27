@@ -8,13 +8,7 @@
 <p> <strong> <a class="btn btn-success" asp-area="" asp-controller="Doctor" asp-action="AddInspection">Добавить обследование</a></strong></p>
 <hr />
 <p>
-    <a href="/Doctor/SendReport">Отправить отчет по обследованиям</a>
-</p>
-<p>
-    <a href="/Doctor/SendReportExel">Отправить список обследований xlx</a>
-</p>
-<p>
-    <a href="/Doctor/SendReportWord">Отправитьсписок обследований docx</a>
+    <a href="/Doctor/SendReport">Отправить отчет по обследованиям в PDF</a>
 </p>
 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 <table class="table">
@@ -46,3 +40,18 @@
         </tr>
     }
 </table>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+<script>
+    function refresh() {
+        var frame = document.getElementById("frame");
+        frame.hidden = false;
+        frame.src = frame.src + "?unique=" + new Date().getTime();
+        frame.style.height = '700px';
+    }
+       @if (ViewBag.CheckingReport != null)
+       {
+          <text> window.onload = refresh; </text>
+       }
+</script>
