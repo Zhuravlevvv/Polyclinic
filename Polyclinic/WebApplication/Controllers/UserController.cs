@@ -133,5 +133,28 @@ namespace WebApplication.Controllers
             ModelState.AddModelError("", "Вы успешно зарегистрированы");
             return View("Registration", client);
         }
+        public IActionResult Edit()
+        {
+            return View(new UsersBindingModel
+            {
+                Id = Program.User.Id,
+                Email = Program.User.Email,
+                Password = Program.User.Password,
+                FIO = Program.User.FIO,
+                PhoneNumber = Program.User.PhoneNumber,
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(UsersBindingModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                user.Update(model);
+                return RedirectToAction(nameof(Index));
+            }
+            return View(model);
+        }
     }
 }

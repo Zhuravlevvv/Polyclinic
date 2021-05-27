@@ -10,5 +10,7 @@ namespace BusinessLogic.Interfaces
     {
         UsersViewModels GetElement(UsersBindingModel model);
         void Insert(UsersBindingModel model);
+        void Update(UsersBindingModel model);
+        void Delete(UsersBindingModel model);
     }
 }
