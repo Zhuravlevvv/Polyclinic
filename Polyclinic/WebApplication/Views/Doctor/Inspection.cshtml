@@ -8,15 +8,18 @@
 <p> <strong> <a class="btn btn-success" asp-area="" asp-controller="Doctor" asp-action="AddInspection">Добавить обследование</a></strong></p>
 <hr />
 
-<div class="form-group">
-    <input type="submit" value="Получить" onclick="check()" asp-action="/Doctor/MakeReport" class="btn btn-primary" />
-</div>
+
 <p>
     <a href="/Doctor/SendReport">Отправить отчет по обследованиям в PDF</a>
 </p>
+<div class="form-group">
+    <input type="submit" value="Получить" onclick="check()" asp-action="/Doctor/MakeReport" class="btn btn-primary" />
+</div>
+<hr/>
 <div class="embed-responsive embed-responsive-16by9 col-8">
     <iframe class="embed-responsive-item w-100" hidden src="~/Report/ReportInspection.pdf" allowfullscreen id="frame"></iframe>
 </div>
+<hr />
 
 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 

@@ -62,7 +62,8 @@ namespace Database.Implements
                 return context.Inspections
                 .Include(costi => costi.CostInspection)
                 .ThenInclude(cost => cost.Cost)
-               .Where(ins => ins.UserId == model.UserId
+               .Where(ins => ins.UserId == model.UserId && 
+               (model.Selected == null || model.Selected.Contains(ins.Id))
                )
                .ToList()
                .Select(rec => new InspectionsViewModels
